@@ -1,8 +1,8 @@
 import Combine
 import Dispatch
-@_spi(SharedChangeTracking) import Sharing
+// @_spi(SharedChangeTracking) import Sharing
 
-extension Reducer {
+public extension Reducer {
   /// Enhances a reducer with debug logging of received actions and state mutations for the given
   /// printer.
   ///
@@ -12,8 +12,8 @@ extension Reducer {
   /// - Returns: A reducer that prints debug messages for all received actions.
   @inlinable
   @warn_unqualified_access
-  @_documentation(visibility: public)
-  public func _printChanges(
+  @_documentation(visibility:)
+  func _printChanges(
     _ printer: _ReducerPrinter<State, Action>? = .customDump
   ) -> _PrintChangesReducer<Self> {
     _PrintChangesReducer<Self>(base: self, printer: printer)
@@ -49,8 +49,8 @@ public struct _ReducerPrinter<State, Action>: Sendable {
   }
 }
 
-extension _ReducerPrinter {
-  public static var customDump: Self {
+public extension _ReducerPrinter {
+  static var customDump: Self {
     Self { receivedAction, oldState, newState in
       var target = ""
       target.write("received action:\n")
@@ -61,7 +61,7 @@ extension _ReducerPrinter {
     }
   }
 
-  public static var actionLabels: Self {
+  static var actionLabels: Self {
     Self { receivedAction, _, _ in
       print("received action: \(debugCaseOutput(receivedAction))")
     }
