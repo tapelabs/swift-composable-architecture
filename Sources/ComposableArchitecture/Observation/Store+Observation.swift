@@ -8,24 +8,24 @@ import SwiftUI
   extension Store: Perceptible {}
 #endif
 
-extension Store where State: ObservableState {
+public extension Store where State: ObservableState {
   var observableState: State {
     self._$observationRegistrar.access(self, keyPath: \.currentState)
     return self.currentState
   }
 
   /// Direct access to state in the store when `State` conforms to ``ObservableState``.
-  public var state: State {
+  var state: State {
     self.observableState
   }
 
-  public subscript<Value>(dynamicMember keyPath: KeyPath<State, Value>) -> Value {
+  subscript<Value>(dynamicMember keyPath: KeyPath<State, Value>) -> Value {
     self.state[keyPath: keyPath]
   }
 }
 
 extension Store: Equatable {
-  public static nonisolated func == (lhs: Store, rhs: Store) -> Bool {
+  public nonisolated static func == (lhs: Store, rhs: Store) -> Bool {
     lhs === rhs
   }
 }
@@ -38,7 +38,7 @@ extension Store: Hashable {
 
 extension Store: Identifiable {}
 
-extension Store where State: ObservableState {
+public extension Store where State: ObservableState {
   /// Scopes the store to optional child state and actions.
   ///
   /// If your feature holds onto a child feature as an optional:
@@ -80,7 +80,7 @@ extension Store where State: ObservableState {
   ///   - line: The line.
   ///   - column: The column.
   /// - Returns: An optional store of non-optional child state and actions.
-  public func scope<ChildState, ChildAction>(
+  func scope<ChildState, ChildAction>(
     state: KeyPath<State, ChildState?>,
     action: CaseKeyPath<Action, ChildAction>,
     fileID: StaticString = #fileID,
@@ -175,7 +175,8 @@ extension Binding {
     line: UInt = #line,
     column: UInt = #column
   ) -> Binding<Store<ChildState, ChildAction>?>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[
       id: wrappedValue.currentState[keyPath: state].flatMap(_identifiableID),
       state: state,
@@ -254,7 +255,8 @@ extension SwiftUI.Bindable {
     line: UInt = #line,
     column: UInt = #column
   ) -> Binding<Store<ChildState, ChildAction>?>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[
       id: wrappedValue.currentState[keyPath: state].flatMap(_identifiableID),
       state: state,
@@ -268,82 +270,82 @@ extension SwiftUI.Bindable {
   }
 }
 
-@available(iOS, introduced: 13, obsoleted: 17)
-@available(macOS, introduced: 10.15, obsoleted: 14)
-@available(tvOS, introduced: 13, obsoleted: 17)
-@available(watchOS, introduced: 6, obsoleted: 10)
-extension Perception.Bindable {
-  /// Scopes the binding of a store to a binding of an optional presentation store.
-  ///
-  /// Use this operator to derive a binding that can be handed to SwiftUI's various navigation
-  /// view modifiers, such as `sheet(item:)`, `popover(item:)`, etc.
-  ///
-  ///
-  /// For example, suppose your feature can present a child feature in a sheet. Then your
-  /// feature's domain would hold onto the child's domain using the library's presentation tools
-  /// (see <doc:TreeBasedNavigation> for more information on these tools):
-  ///
-  /// ```swift
-  /// @Reducer
-  /// struct Feature {
-  ///   @ObservableState
-  ///   struct State {
-  ///     @Presents var child: Child.State?
-  ///     // ...
-  ///   }
-  ///   enum Action {
-  ///     case child(PresentationActionOf<Child>)
-  ///     // ...
-  ///   }
-  ///   // ...
-  /// }
-  /// ```
-  ///
-  /// Then you can derive a binding to the child domain that can be handed to the `sheet(item:)`
-  /// view modifier:
-  ///
-  /// ```swift
-  /// struct FeatureView: View {
-  ///   @Bindable var store: StoreOf<Feature>
-  ///
-  ///   var body: some View {
-  ///     // ...
-  ///     .sheet(item: $store.scope(state: \.child, action: \.child)) { store in
-  ///       ChildView(store: store)
-  ///     }
-  ///   }
-  /// }
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - state: A key path to optional child state.
-  ///   - action: A case key path to presentation child actions.
-  ///   - fileID: The fileID.
-  ///   - filePath: The filePath.
-  ///   - line: The line.
-  ///   - column: The column.
-  /// - Returns: A binding of an optional child store.
-  public func scope<State: ObservableState, Action, ChildState, ChildAction>(
-    state: KeyPath<State, ChildState?>,
-    action: CaseKeyPath<Action, PresentationAction<ChildAction>>,
-    fileID: StaticString = #fileID,
-    filePath: StaticString = #filePath,
-    line: UInt = #line,
-    column: UInt = #column
-  ) -> Binding<Store<ChildState, ChildAction>?>
-  where Value == Store<State, Action> {
-    self[
-      id: wrappedValue.currentState[keyPath: state].flatMap(_identifiableID),
-      state: state,
-      action: action,
-      isInViewBody: _isInPerceptionTracking,
-      fileID: _HashableStaticString(rawValue: fileID),
-      filePath: _HashableStaticString(rawValue: filePath),
-      line: line,
-      column: column
-    ]
-  }
-}
+// @available(iOS, introduced: 13, obsoleted: 17)
+// @available(macOS, introduced: 10.15, obsoleted: 14)
+// @available(tvOS, introduced: 13, obsoleted: 17)
+// @available(watchOS, introduced: 6, obsoleted: 10)
+// extension Perception.Bindable {
+//  /// Scopes the binding of a store to a binding of an optional presentation store.
+//  ///
+//  /// Use this operator to derive a binding that can be handed to SwiftUI's various navigation
+//  /// view modifiers, such as `sheet(item:)`, `popover(item:)`, etc.
+//  ///
+//  ///
+//  /// For example, suppose your feature can present a child feature in a sheet. Then your
+//  /// feature's domain would hold onto the child's domain using the library's presentation tools
+//  /// (see <doc:TreeBasedNavigation> for more information on these tools):
+//  ///
+//  /// ```swift
+//  /// @Reducer
+//  /// struct Feature {
+//  ///   @ObservableState
+//  ///   struct State {
+//  ///     @Presents var child: Child.State?
+//  ///     // ...
+//  ///   }
+//  ///   enum Action {
+//  ///     case child(PresentationActionOf<Child>)
+//  ///     // ...
+//  ///   }
+//  ///   // ...
+//  /// }
+//  /// ```
+//  ///
+//  /// Then you can derive a binding to the child domain that can be handed to the `sheet(item:)`
+//  /// view modifier:
+//  ///
+//  /// ```swift
+//  /// struct FeatureView: View {
+//  ///   @Bindable var store: StoreOf<Feature>
+//  ///
+//  ///   var body: some View {
+//  ///     // ...
+//  ///     .sheet(item: $store.scope(state: \.child, action: \.child)) { store in
+//  ///       ChildView(store: store)
+//  ///     }
+//  ///   }
+//  /// }
+//  /// ```
+//  ///
+//  /// - Parameters:
+//  ///   - state: A key path to optional child state.
+//  ///   - action: A case key path to presentation child actions.
+//  ///   - fileID: The fileID.
+//  ///   - filePath: The filePath.
+//  ///   - line: The line.
+//  ///   - column: The column.
+//  /// - Returns: A binding of an optional child store.
+//  public func scope<State: ObservableState, Action, ChildState, ChildAction>(
+//    state: KeyPath<State, ChildState?>,
+//    action: CaseKeyPath<Action, PresentationAction<ChildAction>>,
+//    fileID: StaticString = #fileID,
+//    filePath: StaticString = #filePath,
+//    line: UInt = #line,
+//    column: UInt = #column
+//  ) -> Binding<Store<ChildState, ChildAction>?>
+//  where Value == Store<State, Action> {
+//    self[
+//      id: wrappedValue.currentState[keyPath: state].flatMap(_identifiableID),
+//      state: state,
+//      action: action,
+//      isInViewBody: _isInPerceptionTracking,
+//      fileID: _HashableStaticString(rawValue: fileID),
+//      filePath: _HashableStaticString(rawValue: filePath),
+//      line: line,
+//      column: column
+//    ]
+//  }
+// }
 
 extension UIBindable {
   #if swift(>=5.10)
@@ -359,7 +361,8 @@ extension UIBindable {
     line: UInt = #line,
     column: UInt = #column
   ) -> UIBinding<Store<ChildState, ChildAction>?>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[
       id: wrappedValue.currentState[keyPath: state].flatMap(_identifiableID),
       state: state,
@@ -373,9 +376,9 @@ extension UIBindable {
   }
 }
 
-extension Store where State: ObservableState {
+public extension Store where State: ObservableState {
   @_spi(Internals)
-  public subscript<ChildState, ChildAction>(
+  subscript<ChildState, ChildAction>(
     id id: AnyHashable?,
     state state: KeyPath<State, ChildState?>,
     action action: CaseKeyPath<Action, PresentationAction<ChildAction>>,
@@ -410,9 +413,9 @@ extension Store where State: ObservableState {
     }
     set {
       if newValue == nil,
-        let childState = self.state[keyPath: state],
-        id == _identifiableID(childState),
-        !self._isInvalidated()
+         let childState = self.state[keyPath: state],
+         id == _identifiableID(childState),
+         !self._isInvalidated()
       {
         self.send(action(.dismiss))
         if self.state[keyPath: state] != nil {

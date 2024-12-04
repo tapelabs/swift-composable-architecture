@@ -1,63 +1,68 @@
 import SwiftUI
 
-extension Binding {
+public extension Binding {
   @_disfavoredOverload
-  public subscript<State: ObservableState, Action, Member>(
+  subscript<State: ObservableState, Action, Member>(
     dynamicMember keyPath: KeyPath<State, Member>
   ) -> _StoreBinding<State, Action, Member>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     _StoreBinding(binding: self, keyPath: keyPath)
   }
 }
 
-extension UIBinding {
+public extension UIBinding {
   @_disfavoredOverload
-  public subscript<State: ObservableState, Action, Member>(
+  subscript<State: ObservableState, Action, Member>(
     dynamicMember keyPath: KeyPath<State, Member>
   ) -> _StoreUIBinding<State, Action, Member>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     _StoreUIBinding(binding: self, keyPath: keyPath)
   }
 }
 
 @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
-extension SwiftUI.Bindable {
+public extension SwiftUI.Bindable {
   @_disfavoredOverload
-  public subscript<State: ObservableState, Action, Member>(
+  subscript<State: ObservableState, Action, Member>(
     dynamicMember keyPath: KeyPath<State, Member>
   ) -> _StoreBindable_SwiftUI<State, Action, Member>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     _StoreBindable_SwiftUI(bindable: self, keyPath: keyPath)
   }
 }
 
-@available(iOS, introduced: 13, obsoleted: 17)
-@available(macOS, introduced: 10.15, obsoleted: 14)
-@available(tvOS, introduced: 13, obsoleted: 17)
-@available(watchOS, introduced: 6, obsoleted: 10)
-@available(visionOS, unavailable)
-extension Perception.Bindable {
-  @_disfavoredOverload
-  public subscript<State: ObservableState, Action, Member>(
-    dynamicMember keyPath: KeyPath<State, Member>
-  ) -> _StoreBindable_Perception<State, Action, Member>
-  where Value == Store<State, Action> {
-    _StoreBindable_Perception(bindable: self, keyPath: keyPath)
-  }
-}
+// @available(iOS, introduced: 13, obsoleted: 17)
+// @available(macOS, introduced: 10.15, obsoleted: 14)
+// @available(tvOS, introduced: 13, obsoleted: 17)
+// @available(watchOS, introduced: 6, obsoleted: 10)
+// @available(visionOS, unavailable)
+// extension Perception.Bindable {
+//  @_disfavoredOverload
+//  public subscript<State: ObservableState, Action, Member>(
+//    dynamicMember keyPath: KeyPath<State, Member>
+//  ) -> _StoreBindable_Perception<State, Action, Member>
+//    where Value == Store<State, Action>
+//  {
+//    _StoreBindable_Perception(bindable: self, keyPath: keyPath)
+//  }
+// }
 
-extension UIBindable {
+public extension UIBindable {
   @_disfavoredOverload
-  public subscript<State: ObservableState, Action, Member>(
+  subscript<State: ObservableState, Action, Member>(
     dynamicMember keyPath: KeyPath<State, Member>
   ) -> _StoreUIBindable<State, Action, Member>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     _StoreUIBindable(bindable: self, keyPath: keyPath)
   }
 }
 
-extension BindingAction {
-  public static func set<Value: Equatable & Sendable>(
+public extension BindingAction {
+  static func set<Value: Equatable & Sendable>(
     _ keyPath: _SendableWritableKeyPath<Root, Value>,
     _ value: Value
   ) -> Self where Root: ObservableState {
@@ -69,7 +74,7 @@ extension BindingAction {
     )
   }
 
-  public static func ~= <Value>(
+  static func ~= <Value>(
     keyPath: WritableKeyPath<Root, Value>,
     bindingAction: Self
   ) -> Bool where Root: ObservableState {
@@ -89,6 +94,7 @@ extension BindingAction {
       self.value = value
       self.isInvalidated = isInvalidated
     }
+
     deinit {
       let isInvalidated = mainActorNow(execute: isInvalidated)
       guard !isInvalidated else { return }
@@ -157,8 +163,8 @@ extension BindableAction where State: ObservableState {
   }
 }
 
-extension Store where State: ObservableState, Action: BindableAction, Action.State == State {
-  public subscript<Value: Equatable & Sendable>(
+public extension Store where State: ObservableState, Action: BindableAction, Action.State == State {
+  subscript<Value: Equatable & Sendable>(
     dynamicMember keyPath: WritableKeyPath<State, Value>
   ) -> Value {
     get { self.state[keyPath: keyPath] }
@@ -170,14 +176,14 @@ extension Store where State: ObservableState, Action: BindableAction, Action.Sta
   }
 }
 
-extension Store
-where
+public extension Store
+  where
   State: Equatable & Sendable,
   State: ObservableState,
   Action: BindableAction,
   Action.State == State
 {
-  public var state: State {
+  var state: State {
     get { self.observableState }
     set {
       BindingLocal.$isActive.withValue(true) {
@@ -187,14 +193,14 @@ where
   }
 }
 
-extension Store
-where
+public extension Store
+  where
   State: ObservableState,
   Action: ViewAction,
   Action.ViewAction: BindableAction,
   Action.ViewAction.State == State
 {
-  public subscript<Value: Equatable & Sendable>(
+  subscript<Value: Equatable & Sendable>(
     dynamicMember keyPath: WritableKeyPath<State, Value>
   ) -> Value {
     get { self.state[keyPath: keyPath] }
@@ -206,15 +212,15 @@ where
   }
 }
 
-extension Store
-where
+public extension Store
+  where
   State: Equatable & Sendable,
   State: ObservableState,
   Action: ViewAction,
   Action.ViewAction: BindableAction,
   Action.ViewAction.State == State
 {
-  public var state: State {
+  var state: State {
     get { self.observableState }
     set {
       BindingLocal.$isActive.withValue(true) {
@@ -305,38 +311,38 @@ public struct _StoreBindable_SwiftUI<State: ObservableState, Action, Value> {
   }
 }
 
-@available(iOS, introduced: 13, obsoleted: 17)
-@available(macOS, introduced: 10.15, obsoleted: 14)
-@available(tvOS, introduced: 13, obsoleted: 17)
-@available(watchOS, introduced: 6, obsoleted: 10)
-@available(visionOS, unavailable)
-@dynamicMemberLookup
-public struct _StoreBindable_Perception<State: ObservableState, Action, Value> {
-  fileprivate let bindable: Perception.Bindable<Store<State, Action>>
-  fileprivate let keyPath: KeyPath<State, Value>
-
-  public subscript<Member>(
-    dynamicMember keyPath: KeyPath<Value, Member>
-  ) -> _StoreBindable_Perception<State, Action, Member> {
-    _StoreBindable_Perception<State, Action, Member>(
-      bindable: self.bindable,
-      keyPath: self.keyPath.appending(path: keyPath)
-    )
-  }
-
-  /// Creates a binding to the value by sending new values through the given action.
-  ///
-  /// - Parameter action: An action for the binding to send values through.
-  /// - Returns: A binding.
-  #if swift(<5.10)
-    @MainActor(unsafe)
-  #else
-    @preconcurrency@MainActor
-  #endif
-  public func sending(_ action: CaseKeyPath<Action, Value>) -> Binding<Value> {
-    self.bindable[state: self.keyPath, action: action]
-  }
-}
+// @available(iOS, introduced: 13, obsoleted: 17)
+// @available(macOS, introduced: 10.15, obsoleted: 14)
+// @available(tvOS, introduced: 13, obsoleted: 17)
+// @available(watchOS, introduced: 6, obsoleted: 10)
+// @available(visionOS, unavailable)
+// @dynamicMemberLookup
+// public struct _StoreBindable_Perception<State: ObservableState, Action, Value> {
+//  fileprivate let bindable: Perception.Bindable<Store<State, Action>>
+//  fileprivate let keyPath: KeyPath<State, Value>
+//
+//  public subscript<Member>(
+//    dynamicMember keyPath: KeyPath<Value, Member>
+//  ) -> _StoreBindable_Perception<State, Action, Member> {
+//    _StoreBindable_Perception<State, Action, Member>(
+//      bindable: self.bindable,
+//      keyPath: self.keyPath.appending(path: keyPath)
+//    )
+//  }
+//
+//  /// Creates a binding to the value by sending new values through the given action.
+//  ///
+//  /// - Parameter action: An action for the binding to send values through.
+//  /// - Returns: A binding.
+//  #if swift(<5.10)
+//    @MainActor(unsafe)
+//  #else
+//    @preconcurrency@MainActor
+//  #endif
+//  public func sending(_ action: CaseKeyPath<Action, Value>) -> Binding<Value> {
+//    self.bindable[state: self.keyPath, action: action]
+//  }
+// }
 
 public struct _StoreUIBindable<State: ObservableState, Action, Value> {
   fileprivate let bindable: UIBindable<Store<State, Action>>
@@ -361,8 +367,8 @@ public struct _StoreUIBindable<State: ObservableState, Action, Value> {
   }
 }
 
-extension Store where State: ObservableState {
-  fileprivate subscript<Value>(
+private extension Store where State: ObservableState {
+  subscript<Value>(
     state state: KeyPath<State, Value>,
     action action: CaseKeyPath<Action, Value>
   ) -> Value {

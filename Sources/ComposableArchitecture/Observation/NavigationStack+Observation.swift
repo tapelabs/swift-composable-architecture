@@ -65,7 +65,8 @@ extension Binding {
     state: KeyPath<State, StackState<ElementState>>,
     action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>
   ) -> Binding<Store<StackState<ElementState>, StackAction<ElementState, ElementAction>>>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[state: state, action: action]
   }
 }
@@ -85,28 +86,29 @@ extension SwiftUI.Bindable {
     state: KeyPath<State, StackState<ElementState>>,
     action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>
   ) -> Binding<Store<StackState<ElementState>, StackAction<ElementState, ElementAction>>>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[state: state, action: action]
   }
 }
 
-@available(iOS, introduced: 13, obsoleted: 17)
-@available(macOS, introduced: 10.15, obsoleted: 14)
-@available(tvOS, introduced: 13, obsoleted: 17)
-@available(watchOS, introduced: 6, obsoleted: 10)
-extension Perception.Bindable {
-  /// Derives a binding to a store focused on ``StackState`` and ``StackAction``.
-  ///
-  /// See ``SwiftUI/Binding/scope(state:action:fileID:filePath:line:column:)`` defined on `Binding` for more
-  /// information.
-  public func scope<State: ObservableState, Action, ElementState, ElementAction>(
-    state: KeyPath<State, StackState<ElementState>>,
-    action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>
-  ) -> Binding<Store<StackState<ElementState>, StackAction<ElementState, ElementAction>>>
-  where Value == Store<State, Action> {
-    self[state: state, action: action]
-  }
-}
+// @available(iOS, introduced: 13, obsoleted: 17)
+// @available(macOS, introduced: 10.15, obsoleted: 14)
+// @available(tvOS, introduced: 13, obsoleted: 17)
+// @available(watchOS, introduced: 6, obsoleted: 10)
+// extension Perception.Bindable {
+//  /// Derives a binding to a store focused on ``StackState`` and ``StackAction``.
+//  ///
+//  /// See ``SwiftUI/Binding/scope(state:action:fileID:filePath:line:column:)`` defined on `Binding` for more
+//  /// information.
+//  public func scope<State: ObservableState, Action, ElementState, ElementAction>(
+//    state: KeyPath<State, StackState<ElementState>>,
+//    action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>
+//  ) -> Binding<Store<StackState<ElementState>, StackAction<ElementState, ElementAction>>>
+//  where Value == Store<State, Action> {
+//    self[state: state, action: action]
+//  }
+// }
 
 extension UIBindable {
   /// Derives a binding to a store focused on ``StackState`` and ``StackAction``.
@@ -122,19 +124,20 @@ extension UIBindable {
     state: KeyPath<State, StackState<ElementState>>,
     action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>
   ) -> UIBinding<Store<StackState<ElementState>, StackAction<ElementState, ElementAction>>>
-  where Value == Store<State, Action> {
+    where Value == Store<State, Action>
+  {
     self[state: state, action: action]
   }
 }
 
 @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
-extension NavigationStack {
+public extension NavigationStack {
   /// Drives a navigation stack with a store.
   ///
   /// See the dedicated article on <doc:Navigation> for more information on the library's
   /// navigation tools, and in particular see <doc:StackBasedNavigation> for information on using
   /// this view.
-  public init<State, Action, Destination: View, R>(
+  init<State, Action, Destination: View, R>(
     path: Binding<Store<StackState<State>, StackAction<State, Action>>>,
     @ViewBuilder root: () -> R,
     @ViewBuilder destination: @escaping (Store<State, Action>) -> Destination,
@@ -143,7 +146,7 @@ extension NavigationStack {
     line: UInt = #line,
     column: UInt = #column
   )
-  where
+    where
     Data == StackState<State>.PathView,
     Root == ModifiedContent<R, _NavigationDestinationViewModifier<State, Action, Destination>>
   {
@@ -193,13 +196,13 @@ public struct _NavigationDestinationViewModifier<
             self.store.scope(
               id: self.store.id(
                 state:
-                  \.[
-                    id: component.id,
-                    fileID: _HashableStaticString(
-                      rawValue: fileID),
-                    filePath: _HashableStaticString(
-                      rawValue: filePath), line: line, column: column
-                  ],
+                \.[
+                  id: component.id,
+                  fileID: _HashableStaticString(
+                    rawValue: self.fileID),
+                  filePath: _HashableStaticString(
+                    rawValue: self.filePath), line: self.line, column: self.column
+                ],
                 action: \.[id: component.id]
               ),
               state: ToState {
@@ -245,7 +248,8 @@ extension NavigationLink where Destination == Never {
     line: UInt = #line,
     column: UInt = #column
   )
-  where Label == _NavigationLinkStoreContent<P, L> {
+    where Label == _NavigationLinkStoreContent<P, L>
+  {
     @Dependency(\.stackElementID) var stackElementID
     self.init(value: state.map { StackState.Component(id: stackElementID(), element: $0) }) {
       _NavigationLinkStoreContent<P, L>(
@@ -281,7 +285,8 @@ extension NavigationLink where Destination == Never {
   public init<P>(
     _ titleKey: LocalizedStringKey, state: P?, fileID: StaticString = #fileID, line: UInt = #line
   )
-  where Label == _NavigationLinkStoreContent<P, Text> {
+    where Label == _NavigationLinkStoreContent<P, Text>
+  {
     self.init(state: state, label: { Text(titleKey) }, fileID: fileID, line: line)
   }
 
@@ -307,7 +312,8 @@ extension NavigationLink where Destination == Never {
   public init<S: StringProtocol, P>(
     _ title: S, state: P?, fileID: StaticString = #fileID, line: UInt = #line
   )
-  where Label == _NavigationLinkStoreContent<P, Text> {
+    where Label == _NavigationLinkStoreContent<P, Text>
+  {
     self.init(state: state, label: { Text(title) }, fileID: fileID, line: line)
   }
 }
@@ -340,40 +346,40 @@ public struct _NavigationLinkStoreContent<State, Label: View>: View {
 
   public var body: some View {
     #if DEBUG
-      label.onAppear {
-        if navigationDestinationType != State.self {
+      self.label.onAppear {
+        if self.navigationDestinationType != State.self {
           let elementType =
-            navigationDestinationType.map { typeName($0) }
+            self.navigationDestinationType.map { typeName($0) }
               ?? """
               (None found in view hierarchy. Is this link inside a store-powered \
               'NavigationStack'?)
               """
           reportIssue(
             """
-            A navigation link at "\(fileID):\(line)" is unpresentable. …
+            A navigation link at "\(self.fileID):\(self.line)" is unpresentable. …
 
               NavigationStack state element type:
                 \(elementType)
               NavigationLink state type:
                 \(typeName(State.self))
               NavigationLink state value:
-              \(String(customDumping: state).indent(by: 2))
+              \(String(customDumping: self.state).indent(by: 2))
             """,
-            fileID: fileID,
-            filePath: filePath,
-            line: line,
-            column: column
+            fileID: self.fileID,
+            filePath: self.filePath,
+            line: self.line,
+            column: self.column
           )
         }
       }
     #else
-      label
+      self.label
     #endif
   }
 }
 
-extension Store where State: ObservableState {
-  fileprivate subscript<ElementState, ElementAction>(
+private extension Store where State: ObservableState {
+  subscript<ElementState, ElementAction>(
     state state: KeyPath<State, StackState<ElementState>>,
     action action: CaseKeyPath<Action, StackAction<ElementState, ElementAction>>,
     isInViewBody isInViewBody: Bool = _isInPerceptionTracking
@@ -391,15 +397,16 @@ extension Store where State: ObservableState {
   }
 }
 
-extension Store {
+public extension Store {
   @_spi(Internals)
-  public subscript<ElementState, ElementAction>(
+  subscript<ElementState, ElementAction>(
     fileID fileID: _HashableStaticString,
     filePath filePath: _HashableStaticString,
     line line: UInt,
     column column: UInt
   ) -> StackState<ElementState>.PathView
-  where State == StackState<ElementState>, Action == StackAction<ElementState, ElementAction> {
+    where State == StackState<ElementState>, Action == StackAction<ElementState, ElementAction>
+  {
     get { self.currentState.path }
     set {
       let newCount = newValue.count
@@ -451,8 +458,8 @@ public var _isInPerceptionTracking: Bool {
   #endif
 }
 
-extension StackState {
-  var path: PathView {
+public extension StackState {
+  internal var path: PathView {
     _read { yield PathView(base: self) }
     _modify {
       var path = PathView(base: self)
@@ -462,7 +469,7 @@ extension StackState {
     set { self = newValue.base }
   }
 
-  public struct Component: Hashable {
+  struct Component: Hashable {
     @_spi(Internals)
     public let id: StackElementID
     @_spi(Internals)
@@ -483,7 +490,7 @@ extension StackState {
     }
   }
 
-  public struct PathView: MutableCollection, RandomAccessCollection,
+  struct PathView: MutableCollection, RandomAccessCollection,
     RangeReplaceableCollection
   {
     var base: StackState
@@ -534,9 +541,9 @@ private struct NavigationDestinationTypeKey: EnvironmentKey {
   static var defaultValue: Any.Type? { nil }
 }
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
   @_spi(Internals)
-  public var navigationDestinationType: Any.Type? {
+  var navigationDestinationType: Any.Type? {
     get { self[NavigationDestinationTypeKey.self] }
     set { self[NavigationDestinationTypeKey.self] = newValue }
   }
